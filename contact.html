@@ -269,7 +269,7 @@
     <h2>Send an Enquiry</h2>
     <p>Fill in the details below and your message will be sent directly to Pramod.</p>
 
-    <form action="https://api.web3forms.com/submit" method="POST">
+    <form id="enquiry-form" action="https://api.web3forms.com/submit" method="POST">
 
       <!-- Web3Forms access key -->
       <input type="hidden" name="access_key" value="e4dbdae4-68c2-4d9e-af0d-c29f8e937c1b">
@@ -277,8 +277,7 @@
       <!-- Optional: custom subject line in your inbox -->
       <input type="hidden" name="subject" value="New Enquiry from Dvinix Website">
 
-      <!-- Optional: redirect after success -->
-      <input type="hidden" name="redirect" value="https://web3forms.com/success">
+
 
       <div class="form-row">
         <div class="field">
@@ -321,7 +320,7 @@
         <textarea id="message" name="message" placeholder="Describe your challenge, timeline, and what kind of support you're looking for..." required></textarea>
       </div>
 
-      <button type="submit" class="submit-btn">Send Enquiry</button>
+      <button type="submit" id="submit-btn" class="submit-btn">Send Enquiry</button>
     </form>
   </div>
 
@@ -368,5 +367,59 @@
   &copy; 2026 Dvinix. All rights reserved.
 </footer>
 
-</body>
+
+<!-- SUCCESS OVERLAY -->
+<div id="success-overlay" style="display:none;position:fixed;inset:0;z-index:999;background:rgba(11,31,58,0.7);align-items:center;justify-content:center;">
+  <div style="background:white;border-radius:18px;padding:50px 40px;max-width:440px;width:90%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.3);">
+    <div style="width:64px;height:64px;background:#f0fdf4;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;">
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+    </div>
+    <h2 style="font-size:1.4rem;font-weight:800;color:#0B1F3A;margin-bottom:12px;">Enquiry Received!</h2>
+    <p style="color:#6B7280;font-size:0.97rem;line-height:1.6;margin-bottom:8px;">Thank you for reaching out. Your message has been sent successfully.</p>
+    <p style="color:#6B7280;font-size:0.97rem;line-height:1.6;margin-bottom:28px;">Pramod will get back to you within <strong>1&ndash;2 business days</strong>.</p>
+    <div style="height:4px;background:#E5E7EB;border-radius:4px;overflow:hidden;">
+      <div id="progress-bar" style="height:100%;width:0%;background:#0073E6;transition:width 3s linear;border-radius:4px;"></div>
+    </div>
+    <p style="color:#9CA3AF;font-size:0.8rem;margin-top:10px;">Returning to home page&hellip;</p>
+  </div>
+</div>
+
+<script>
+  var form = document.getElementById('enquiry-form');
+  var btn  = document.getElementById('submit-btn');
+
+  form.addEventListener('submit', function(e) {
+    e.preventDefault();
+    btn.disabled = true;
+    btn.textContent = 'Sending...';
+
+    fetch('https://api.web3forms.com/submit', {
+      method: 'POST',
+      body: new FormData(form),
+      headers: { 'Accept': 'application/json' }
+    })
+    .then(function(res) { return res.json(); })
+    .then(function(data) {
+      if (data.success) {
+        var overlay = document.getElementById('success-overlay');
+        overlay.style.display = 'flex';
+        setTimeout(function() {
+          document.getElementById('progress-bar').style.width = '100%';
+        }, 50);
+        setTimeout(function() {
+          window.location.href = 'index.html';
+        }, 3200);
+      } else {
+        btn.disabled = false;
+        btn.textContent = 'Send Enquiry';
+        alert('Something went wrong. Please try again.');
+      }
+    })
+    .catch(function() {
+      btn.disabled = false;
+      btn.textContent = 'Send Enquiry';
+      alert('Network error. Please check your connection and try again.');
+    });
+  });
+</script></body>
 </html>
